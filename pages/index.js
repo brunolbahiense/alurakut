@@ -24,6 +24,27 @@ function ProfileSidebar(props) {
   )
 }
 
+function ProfileRelationsBox (props) {
+  return (
+    <ProfileRelationsBoxWrapper>
+      <h2 className="smallTitle">
+        {props.title} ({props.items.length})
+      </h2>
+      <ul>
+        {/* {seguidores.map((item) => {
+          return (
+            <li key={item}>
+              <a href={`https://github.com/${item}.png`} key={item.title}>
+                <img src={item.image} />
+                <span>{item.title}</span>
+              </a>
+            </li>      
+           ) 
+        })} */}
+      </ul>
+      </ProfileRelationsBoxWrapper>
+  )
+}
 export default function Home() {
   const user = 'brunolbahiense'
   const [comunidades, setComunidades] = React.useState([{
@@ -42,6 +63,16 @@ export default function Home() {
      'filipedeschamps',
      'omariosouto'
     ]
+    const [seguidores, setSeguidores] = React.useState([])
+    React.useEffect(() => {
+      fetch('https://api.github.com/users/brunolbahiense/followers')
+        .then((resposta) => {
+          return resposta.json()
+        })
+        .then((respostaCompleta) => {
+          setSeguidores(respostaCompleta)
+        })
+    }, [])
 
   return (
     <>
@@ -64,9 +95,6 @@ export default function Home() {
             <form onSubmit={(e) => {
               e.preventDefault()
               const dadosDoForm = new FormData(e.target)
-
-              console.log('campo: ', dadosDoForm.get('title'))
-              console.log('campo: ', dadosDoForm.get('image'))
 
               const comunidade = {
                 id: new Date().toISOString(),
@@ -96,6 +124,7 @@ export default function Home() {
         </div>
 
         <div className='profileRelationsArea' style={{ gridArea: 'profileRelationsArea' }}>
+          <ProfileRelationsBox title='Seguidores' items={seguidores}/>
           <ProfileRelationsBoxWrapper>
             <h2 className="smallTitle">
               Comunidades ({comunidades.length})
