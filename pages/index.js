@@ -7,7 +7,7 @@ import { ProfileRelationsBoxWrapper } from '../src/components/ProfileRelations'
 //isso não é um estilo, mas sim uma estrutura
 function ProfileSidebar(props) {
   return(
-    <Box>
+    <Box as="aside">
       <img src= {`http://github.com/${props.githubUser}.png`} style={{ borderRadius: '8px' }} />
       <hr />
 
@@ -26,16 +26,21 @@ function ProfileSidebar(props) {
 
 export default function Home() {
   const user = 'brunolbahiense'
-  const [comunidades, setComunidades] = React.useState(['Aurakut'])
+  const [comunidades, setComunidades] = React.useState([{
+    id: '1203982037328',
+    title: 'eu odeio acordar cedo',
+    image: 'http://alurakut.vercel.app/capa-comunidade-01.jpg'
+  }])
   //const comunidades = comunidades [0]
   //const alterarcomunidades/setcomunidades = comunidades [1]
   const pessoasFavoritas = [ 
-    'omariosouto',
+
      'peas', 
      'rafaballerini',
      'felipefialho',
      'Roger-Melo', 
-     'filipedeschamps'
+     'filipedeschamps',
+     'omariosouto'
     ]
 
   return (
@@ -58,8 +63,18 @@ export default function Home() {
             <h2 className="subTitle">O que você deseja fazer?</h2>
             <form onSubmit={(e) => {
               e.preventDefault()
+              const dadosDoForm = new FormData(e.target)
 
-              const comunidadesAtualizadas = [...comunidades, 'Alurakut Starts' ]
+              console.log('campo: ', dadosDoForm.get('title'))
+              console.log('campo: ', dadosDoForm.get('image'))
+
+              const comunidade = {
+                id: new Date().toISOString(),
+                title: dadosDoForm.get('title'),
+                image: dadosDoForm.get('image')
+              }
+
+              const comunidadesAtualizadas = [...comunidades, comunidade ]
               setComunidades(comunidadesAtualizadas)
             }}>
               <div>
@@ -82,13 +97,16 @@ export default function Home() {
 
         <div className='profileRelationsArea' style={{ gridArea: 'profileRelationsArea' }}>
           <ProfileRelationsBoxWrapper>
+            <h2 className="smallTitle">
+              Comunidades ({comunidades.length})
+            </h2>
             <ul>
               {comunidades.map((item) => {
                 return (
-                  <li>
-                    <a href={`/users/${item}`} key={item}>
-                      <img src={`https://placehold.it/300x300`} />
-                      <span>{item}</span>
+                  <li key={item.id}>
+                    <a href={`/users/${item.title}`} key={item.title}>
+                      <img src={item.image} />
+                      <span>{item.title}</span>
                     </a>
                   </li>
                   
@@ -103,7 +121,7 @@ export default function Home() {
             <ul>
               {pessoasFavoritas.map((item) => {
                 return (
-                  <li>
+                  <li key={item}>
                     <a href={`/users/${item}`} key={item}>
                       <img src={`https://github.com/${item}.png`} />
                       <span>{item}</span>
