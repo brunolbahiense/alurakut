@@ -47,11 +47,7 @@ function ProfileRelationsBox (props) {
 }
 export default function Home() {
   const user = 'brunolbahiense'
-  const [comunidades, setComunidades] = React.useState([{
-    id: '1203982037328',
-    title: 'eu odeio acordar cedo',
-    image: 'http://alurakut.vercel.app/capa-comunidade-01.jpg'
-  }])
+  const [comunidades, setComunidades] = React.useState([])
   //const comunidades = comunidades [0]
   //const alterarcomunidades/setcomunidades = comunidades [1]
   const pessoasFavoritas = [ 
@@ -72,6 +68,30 @@ export default function Home() {
         .then((respostaCompleta) => {
           setSeguidores(respostaCompleta)
         })
+        
+      //API GRAPHQL
+      fetch( 'https://graphql.datocms.com/', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'b6859c9000f5489f37c289c9b84811',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',    
+        },
+        body: JSON.stringify({ "query": `        
+        {
+          allCommunities {
+            title
+            id
+            imageUrl
+            creatorSlug
+          }
+        }`})
+      })
+      .then((response) => response.json())
+      .then((respostaCompleta) => {
+        const comunidadesDato = respostaCompleta.data.allCommunities
+        setComunidades(comunidadesDato)
+      })
     }, [])
 
   return (
@@ -97,13 +117,26 @@ export default function Home() {
               const dadosDoForm = new FormData(e.target)
 
               const comunidade = {
-                id: new Date().toISOString(),
                 title: dadosDoForm.get('title'),
-                image: dadosDoForm.get('image')
+                imageUrl: dadosDoForm.get('image'),
+                creatorSlug: user
               }
 
-              const comunidadesAtualizadas = [...comunidades, comunidade ]
-              setComunidades(comunidadesAtualizadas)
+              fetch('/api/comunidades', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(user)
+              })
+              .then(async (res) => {
+                const data = await res.json()
+                console.log(data)
+                const comunidade = dados.registroCriado
+                const comunidadesAtualizadas = [...comunidades, comunidade ]
+                setComunidades(comunidadesAtualizadas)
+              })
+              
             }}>
               <div>
                 <input 
@@ -133,8 +166,8 @@ export default function Home() {
               {comunidades.map((item) => {
                 return (
                   <li key={item.id}>
-                    <a href={`/users/${item.title}`} key={item.title}>
-                      <img src={item.image} />
+                    <a href={`/communities/${item.title}`} key={item.title}>
+                      <img src={item.imageUrl} />
                       <span>{item.title}</span>
                     </a>
                   </li>
